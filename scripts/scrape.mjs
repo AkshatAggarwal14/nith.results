@@ -325,6 +325,12 @@ async function fetchBatch(batch, branchCodes) {
 }
 
 async function main() {
+  // Fail fast: without this we'd fetch thousands of pages and only
+  // discover at the first DB write that there's nowhere to save them.
+  if (!process.env.DATABASE_URL) {
+    console.error("DATABASE_URL is empty. Set it before running.");
+    process.exit(1);
+  }
   // No batch files needed: `node scripts/scrape.mjs 22 23`, or no args
   // to cover 20..current year (missing schemes are probed and skipped).
   const { branchMap } = await import("./branch.mjs").catch(() => ({
