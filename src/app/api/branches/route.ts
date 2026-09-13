@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../lib/prisma";
 
-const prisma = new PrismaClient();
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  const branches = await prisma.branch.findMany({});
-  return NextResponse.json(branches);
+  try {
+    const branches = await prisma.branch.findMany({});
+    return NextResponse.json(branches);
+  } catch (err: any) {
+    console.error("API /api/branches error:", err);
+    return NextResponse.json(
+      { error: "Failed to fetch branches", message: err?.message },
+      { status: 500 }
+    );
+  }
 }
+

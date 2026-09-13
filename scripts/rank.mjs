@@ -7,19 +7,43 @@ const rankMap = new Map();
 async function _rank(query, type, basedOn) {
   const students = await prisma.student.findMany({
     where: query,
-    orderBy: {
-      summary: {
-        [basedOn]: "desc",
-      },
+    include: {
+      summary: true,
     },
+    orderBy: [
+      {
+        summary: {
+          [basedOn]: "desc",
+        },
+      },
+      {
+        rollno: "asc",
+      },
+    ],
   });
 
-  for (let i = 1; i <= students.length; i++) {
-    if (!rankMap.has(students[i - 1].rollno)) {
-      rankMap.set(students[i - 1].rollno, {});
+  let currentRank = 1;
+  for (let i = 0; i < students.length; i++) {
+    const s = students[i];
+    const prev = i > 0 ? students[i - 1] : null;
+
+    // Tied scores get the same rank (competition ranking: 1, 2, 2, 4...)
+    if (
+      prev &&
+      s.summary &&
+      prev.summary &&
+      s.summary[basedOn] === prev.summary[basedOn]
+    ) {
+      // keep same currentRank
+    } else {
+      currentRank = i + 1;
     }
 
-    rankMap.get(students[i - 1].rollno)[`${type}_rank_${basedOn}`] = i;
+    if (!rankMap.has(s.rollno)) {
+      rankMap.set(s.rollno, {});
+    }
+
+    rankMap.get(s.rollno)[`${type}_rank_${basedOn}`] = currentRank;
   }
 }
 
