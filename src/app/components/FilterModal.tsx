@@ -72,11 +72,11 @@ export default function FilterModal({
     } else {
       next = [...selectedBranches, lower];
     }
-    router.replace(buildHref(selectedBatches, next), { scroll: false });
+    router.replace(buildHref(selectedBatches, next));
   };
 
   const clearBranches = () => {
-    router.replace(buildHref(selectedBatches, []), { scroll: false });
+    router.replace(buildHref(selectedBatches, []));
   };
 
   const toggleBatch = (b: string) => {
@@ -86,16 +86,17 @@ export default function FilterModal({
     } else {
       next = [...selectedBatches, b];
     }
-    router.replace(buildHref(next, selectedBranches), { scroll: false });
+    router.replace(buildHref(next, selectedBranches));
   };
 
   const clearBatches = () => {
-    router.replace(buildHref([], selectedBranches), { scroll: false });
+    router.replace(buildHref([], selectedBranches));
   };
 
   const resetAll = () => {
-    router.replace(buildHref([], []), { scroll: false });
+    router.replace(buildHref([], []));
   };
+
 
   const totalActive = selectedBatches.length + selectedBranches.length;
 

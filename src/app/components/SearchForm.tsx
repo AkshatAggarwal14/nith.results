@@ -56,13 +56,14 @@ export default function SearchForm({ filters }: { filters?: FilterConfig }) {
 
   const removeBatch = (b: string) => {
     const next = selectedBatches.filter((item) => item !== b);
-    router.replace(buildHrefWithFilters(next, selectedBranches), { scroll: false });
+    router.replace(buildHrefWithFilters(next, selectedBranches));
   };
 
   const removeBranch = (br: string) => {
     const next = selectedBranches.filter((item) => item !== br);
-    router.replace(buildHrefWithFilters(selectedBatches, next), { scroll: false });
+    router.replace(buildHrefWithFilters(selectedBatches, next));
   };
+
 
   const clearAllHref =
     filters?.currentSize && filters.currentSize !== 25
