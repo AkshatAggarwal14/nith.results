@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { readdirSync } from "fs";
 import { branchMap } from "./branch.mjs";
 const prisma = new PrismaClient();
 
@@ -45,7 +44,17 @@ async function main() {
   await _rank({}, "college", "cgpi", true);
   await _rank({}, "college", "sgpi");
 
-  const batches = readdirSync("./data");
+  // Batches from argv, else distinct batches already in the DB.
+  const argBatches = process.argv.slice(2).filter((a) => /^\d+$/.test(a));
+  const batches =
+    argBatches.length > 0
+      ? argBatches
+      : (
+          await prisma.student.findMany({
+            select: { batch: true },
+            distinct: ["batch"],
+          })
+        ).map((s) => s.batch);
   for (const batch of batches) {
     // rank in the batch
     await _rank(
