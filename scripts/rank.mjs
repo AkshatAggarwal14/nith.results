@@ -10,22 +10,38 @@ async function _rank(query, type, basedOn) {
     include: {
       summary: true,
     },
-    orderBy: [
-      {
-        summary: {
-          [basedOn]: "desc",
-        },
-      },
-      {
-        rollno: "asc",
-      },
-    ],
   });
 
+  const withSummary = [];
+  const withoutSummary = [];
+
+  for (const s of students) {
+    if (s.summary && s.summary[basedOn] != null && s.summary[basedOn] !== "") {
+      withSummary.push(s);
+    } else {
+      withoutSummary.push(s);
+    }
+  }
+
+  // Sort withSummary numerically descending, rollno ascending
+  withSummary.sort((a, b) => {
+    const scoreA = parseFloat(a.summary[basedOn]) || 0;
+    const scoreB = parseFloat(b.summary[basedOn]) || 0;
+    if (scoreB !== scoreA) {
+      return scoreB - scoreA;
+    }
+    return a.rollno.localeCompare(b.rollno);
+  });
+
+  // Sort withoutSummary by rollno ascending
+  withoutSummary.sort((a, b) => a.rollno.localeCompare(b.rollno));
+
+  const sortedStudents = [...withSummary, ...withoutSummary];
+
   let currentRank = 1;
-  for (let i = 0; i < students.length; i++) {
-    const s = students[i];
-    const prev = i > 0 ? students[i - 1] : null;
+  for (let i = 0; i < sortedStudents.length; i++) {
+    const s = sortedStudents[i];
+    const prev = i > 0 ? sortedStudents[i - 1] : null;
 
     // Tied scores get the same rank (competition ranking: 1, 2, 2, 4...)
     if (
@@ -35,6 +51,12 @@ async function _rank(query, type, basedOn) {
       s.summary[basedOn] === prev.summary[basedOn]
     ) {
       // keep same currentRank
+    } else if (
+      prev &&
+      (!s.summary || !s.summary[basedOn]) &&
+      (!prev.summary || !prev.summary[basedOn])
+    ) {
+      // All students without summary tie at the end
     } else {
       currentRank = i + 1;
     }

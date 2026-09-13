@@ -58,7 +58,11 @@ export default async function Home({
       where,
       include: { summary: true, rank: true, branch: true },
       orderBy: [
-        { summary: { cgpi: "desc" } },
+        branchList.length === 1 && batchList.length === 1
+          ? { rank: { class_rank_cgpi: "asc" } }
+          : batchList.length === 1
+          ? { rank: { year_rank_cgpi: "asc" } }
+          : { rank: { college_rank_cgpi: "asc" } },
         { rollno: "asc" },
       ],
       skip: (page - 1) * size,
@@ -160,22 +164,28 @@ export default async function Home({
             <Link key={s.rollno} href={`/result/${s.rollno}`} className="rcard">
               <span className="rank">{displayRank}</span>
               <h3>{s.name}</h3>
-            <div className="roll">
-              {s.rollno.toUpperCase()} ·{" "}
-              {s.branch?.branch_code?.toUpperCase()} · batch {s.batch}
-            </div>
-            <div className="cgpi">
-              {s.summary?.cgpi} <small>CGPI</small>
-            </div>
-            {s.rank && (
-              <div className="splits">
-                <span>Year #{s.rank.year_rank_cgpi}</span>
-                <span>Class #{s.rank.class_rank_cgpi}</span>
+              <div className="roll">
+                {s.rollno.toUpperCase()} ·{" "}
+                {s.branch?.branch_code?.toUpperCase()} · batch {s.batch}
               </div>
-            )}
-          </Link>
-        );
-      })}
+              <div className="cgpi">
+                {s.summary?.cgpi ? (
+                  <>
+                    {s.summary.cgpi} <small>CGPI</small>
+                  </>
+                ) : (
+                  <small>—</small>
+                )}
+              </div>
+              {s.summary?.cgpi && s.rank && (
+                <div className="splits">
+                  <span>Year #{s.rank.year_rank_cgpi}</span>
+                  <span>Class #{s.rank.class_rank_cgpi}</span>
+                </div>
+              )}
+            </Link>
+          );
+        })}
       </section>
 
       <Pagination

@@ -208,7 +208,13 @@ export default async function ResultPage({
           <div className="stat">
             <span>Cumulative CGPI</span>
             <strong>
-              {student.summary?.cgpi} <small>/ 10</small>
+              {student.summary?.cgpi ? (
+                <>
+                  {student.summary.cgpi} <small>/ 10</small>
+                </>
+              ) : (
+                "—"
+              )}
             </strong>
             {sems.length >= 2 && (
               <em className={delta >= 0 ? "up" : "down"}>
@@ -223,11 +229,15 @@ export default async function ResultPage({
           </div>
           <div className="stat">
             <span>Highest SGPI</span>
-            <strong>{Math.max(...sgpis).toFixed(2)}</strong>
+            <strong>
+              {sgpis.length > 0 ? Math.max(...sgpis).toFixed(2) : "—"}
+            </strong>
           </div>
           <div className="stat">
             <span>Lowest SGPI</span>
-            <strong>{Math.min(...sgpis).toFixed(2)}</strong>
+            <strong>
+              {sgpis.length > 0 ? Math.min(...sgpis).toFixed(2) : "—"}
+            </strong>
           </div>
         </div>
 

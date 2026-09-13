@@ -248,7 +248,7 @@ export default function SearchForm({ filters }: { filters?: FilterConfig }) {
                     {h.branch?.branch_code?.toUpperCase()} · {h.batch}
                   </span>
                 </span>
-                <span className="cg">{h.summary?.cgpi}</span>
+                <span className="cg">{h.summary?.cgpi ?? "—"}</span>
               </button>
             </li>
           ))}
